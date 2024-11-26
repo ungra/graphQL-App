@@ -34,8 +34,14 @@ const typeDefs = gql`
     id: ID!
     firstName: String!
     lastName: String!
+    """
+    Is the sum of firstName + lastName as a string.
+    """
     fullName: String!
   }
+  """
+  Tweet object represents a resource for a Tweet.
+  """
   type Tweet {
     id: ID!
     text: String!
@@ -45,10 +51,35 @@ const typeDefs = gql`
     allTweets: [Tweet!]!
     tweet(id: ID!): Tweet
     allUsers: [User!]!
+    allMovies: [Movie!]!
+    movie(id: String!): Movie
   }
   type Mutation {
     postTweet(text: String!, userId: ID!): Tweet!
     deleteTweet(id: ID!): Boolean!
+  }
+  type Movie {
+    id: Int!
+    url: String!
+    imdb_code: String!
+    title: String!
+    title_english: String!
+    title_long: String!
+    slug: String!
+    year: Int!
+    rating: Float!
+    runtime: Float!
+    genres: [String]!
+    summary: String
+    description_full: String!
+    synopsis: String
+    yt_trailer_code: String!
+    language: String!
+    background_image: String!
+    background_image_original: String!
+    small_cover_image: String!
+    medium_cover_image: String!
+    large_cover_image: String!
   }
 `;
 
@@ -62,6 +93,16 @@ const resolvers = {
     },
     allUsers() {
       return users;
+    },
+    allMovies() {
+      return fetch("https://yts.mx/api/v2/list_movies.json")
+        .then((r) => r.json())
+        .then((json) => json.data.movies);
+    },
+    movie(_, { id }) {
+      return fetch(`https://yts.mx/api/v2/movie_details.json?movie_id=${id}`)
+        .then((r) => r.json())
+        .then((json) => json.data.movie);
     },
   },
   Mutation: {
